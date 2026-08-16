@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import {
+  getAuthRedirectUrl,
+  isSupabaseConfigured,
+  supabase,
+  supabaseConfigError,
+} from "@/lib/supabase";
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -9,7 +14,7 @@ export default function SignInScreen() {
 
   async function sendMagicLink() {
     if (!isSupabaseConfigured) {
-      setMessage("Add Supabase values to apps/mobile/.env before signing in.");
+      setMessage(supabaseConfigError ?? "Add Supabase values to apps/mobile/.env before signing in.");
       return;
     }
 
@@ -17,16 +22,22 @@ export default function SignInScreen() {
     setMessage("");
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: email.trim(),
         options: {
-          emailRedirectTo: "forge://",
+          emailRedirectTo: getAuthRedirectUrl(),
         },
       });
 
       if (error) throw error;
       setMessage("Check your email for the Forge sign-in link.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to send sign-in link.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unable to send sign-in link.";
+      setMessage(
+        errorMessage.includes("Invalid path")
+          ? "Check EXPO_PUBLIC_SUPABASE_URL. It must be only https://your-project-ref.supabase.co, not a dashboard/API URL."
+          : errorMessage,
+      );
     } finally {
       setLoading(false);
     }
