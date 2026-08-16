@@ -4,10 +4,18 @@ Forge is a premium personal growth operating system prototype. The first web sur
 
 ## Stack
 
-- Vinext / React app router
-- Cloudflare Sites deployment target
-- Cloudflare D1 logical binding named `DB`
-- Drizzle schema and migrations
+- Mobile frontend: React Native + Expo + TypeScript
+- Navigation: Expo Router
+- Animations: React Native Reanimated
+- Backend: Supabase Free
+- Database: PostgreSQL through Supabase
+- Authentication: Supabase Auth
+- Storage: Supabase Storage free tier
+- Push notifications: Expo Notifications
+- Analytics: PostHog free tier
+- AI: Groq free API
+- Hosting/web dashboard: Vercel free tier
+- Git/repository: GitHub Free at `https://github.com/ssss69/forge`
 - Node test runner
 
 ## Quick Start
@@ -16,6 +24,14 @@ Forge is a premium personal growth operating system prototype. The first web sur
 npm install
 npm run dev
 npm test
+```
+
+The Expo app lives in `apps/mobile`. Install and run it from that folder:
+
+```bash
+cd apps/mobile
+npm install
+npm run start
 ```
 
 ## Backend Endpoints
@@ -31,7 +47,13 @@ npm test
 
 The first backend pass uses `demo_user` so the routes can be exercised before authentication is wired. The next production step is to replace that with authenticated Sites headers or Supabase Auth identities.
 
-## Database
+## Supabase Backend
+
+Supabase migrations live in `supabase/migrations`. The first migration creates the Forge product tables, indexes, row-level security policies, Expo push token table, and private Future Self video storage bucket.
+
+The Groq-powered AI coach lives in `supabase/functions/coach`.
+
+## Legacy Web Prototype Database
 
 The D1 binding is declared in `.openai/hosting.json` as `DB`. Drizzle schema lives in `db/schema.ts`, and generated SQL migrations live under `drizzle/`.
 
