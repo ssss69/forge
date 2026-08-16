@@ -19,7 +19,6 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-secure-store",
     "expo-notifications",
-    "react-native-reanimated/plugin",
   ],
   experiments: {
     typedRoutes: true,
