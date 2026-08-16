@@ -2,21 +2,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import { Platform } from "react-native";
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
+const rawSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
 const authRedirectUrl = process.env.EXPO_PUBLIC_AUTH_REDIRECT_URL?.trim();
 
+function normalizeSupabaseUrl(value?: string) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    if (!url.hostname.endsWith(".supabase.co")) return null;
+
+    return `${url.protocol}//${url.hostname}`;
+  } catch {
+    return null;
+  }
+}
+
+const supabaseUrl = normalizeSupabaseUrl(rawSupabaseUrl);
+
 function getSupabaseConfigError() {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!rawSupabaseUrl || !supabaseAnonKey) {
     return "Add Supabase values to apps/mobile/.env before signing in.";
   }
 
-  try {
-    const url = new URL(supabaseUrl);
-    if (!url.hostname.endsWith(".supabase.co") || url.pathname !== "/") {
-      return "EXPO_PUBLIC_SUPABASE_URL must look like https://your-project-ref.supabase.co with no extra path.";
-    }
-  } catch {
+  if (!supabaseUrl) {
     return "EXPO_PUBLIC_SUPABASE_URL must be a valid https://your-project-ref.supabase.co URL.";
   }
 
