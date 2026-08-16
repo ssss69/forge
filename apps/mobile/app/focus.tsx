@@ -8,9 +8,13 @@ const durations = [25, 45, 60, 90, 180];
 export default function FocusScreen() {
   const [duration, setDuration] = useState(45);
   const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
 
   async function startFocus() {
+    setMessage("");
+
     if (!isSupabaseConfigured) {
+      setMessage("Add Supabase values to apps/mobile/.env to sync focus sessions.");
       return;
     }
 
@@ -20,15 +24,25 @@ export default function FocusScreen() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        throw new Error("Sign in before starting a synced focus session.");
+        setMessage("Sign in first, then Forge can save your focus session.");
+        return;
       }
 
-      await supabase.from("focus_sessions").insert({
+      const { error } = await supabase.from("focus_sessions").insert({
         user_id: user.id,
         planned_minutes: duration,
         strict_mode: true,
         status: "active",
       });
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      setMessage(`${duration} minute focus session started.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to start focus session.");
     } finally {
       setSaving(false);
     }
@@ -65,7 +79,9 @@ export default function FocusScreen() {
       <Pressable disabled={saving} onPress={startFocus} style={styles.primaryButton}>
         <Text style={styles.primaryButtonText}>{saving ? "Starting..." : "Begin deep focus"}</Text>
       </Pressable>
-      {!isSupabaseConfigured ? (
+      {message ? (
+        <Text style={styles.setupText}>{message}</Text>
+      ) : !isSupabaseConfigured ? (
         <Text style={styles.setupText}>
           Add Supabase values to apps/mobile/.env to sync focus sessions.
         </Text>
