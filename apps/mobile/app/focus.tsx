@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import { supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 const durations = [25, 45, 60, 90, 180];
 
@@ -10,6 +10,10 @@ export default function FocusScreen() {
   const [saving, setSaving] = useState(false);
 
   async function startFocus() {
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     setSaving(true);
     try {
       const {
@@ -61,6 +65,11 @@ export default function FocusScreen() {
       <Pressable disabled={saving} onPress={startFocus} style={styles.primaryButton}>
         <Text style={styles.primaryButtonText}>{saving ? "Starting..." : "Begin deep focus"}</Text>
       </Pressable>
+      {!isSupabaseConfigured ? (
+        <Text style={styles.setupText}>
+          Add Supabase values to apps/mobile/.env to sync focus sessions.
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -144,5 +153,10 @@ const styles = StyleSheet.create({
     color: "#120d02",
     fontSize: 16,
     fontWeight: "900",
+  },
+  setupText: {
+    color: "#aeb5c8",
+    lineHeight: 22,
+    textAlign: "center",
   },
 });

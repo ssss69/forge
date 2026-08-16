@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -8,6 +8,11 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
 
   async function sendMagicLink() {
+    if (!isSupabaseConfigured) {
+      setMessage("Add Supabase values to apps/mobile/.env before signing in.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     try {
