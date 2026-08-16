@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
+const authRedirectUrl = process.env.EXPO_PUBLIC_AUTH_REDIRECT_URL?.trim();
 
 function getSupabaseConfigError() {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -26,6 +27,10 @@ export const supabaseConfigError = getSupabaseConfigError();
 export const isSupabaseConfigured = !supabaseConfigError;
 
 export function getAuthRedirectUrl() {
+  if (authRedirectUrl) {
+    return authRedirectUrl;
+  }
+
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return `${window.location.origin}/sign-in`;
   }
